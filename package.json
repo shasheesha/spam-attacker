@@ -1,0 +1,29 @@
+{
+  "name": "spam-attacker",
+  "version": "1.0.0",
+  "description": "Spam Attacker — Web Form Security Testing CLI Tool that detects weak validation, rate limiting gaps, and performance issues in web forms.",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "keywords": [
+    "security",
+    "testing",
+    "web-forms",
+    "cli",
+    "penetration-testing",
+    "validation"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^1.6.7",
+    "chalk": "^4.1.2",
+    "cheerio": "^1.0.0-rc.12",
+    "commander": "^12.0.0",
+    "p-limit": "^3.1.0"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}
