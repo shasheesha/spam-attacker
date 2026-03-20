@@ -8,11 +8,13 @@ const logger = require('../utils/logger');
  * Save the report object as a formatted JSON file.
  *
  * @param {object} report       - The full report object from reportBuilder
- * @param {string} outputPrefix - File path prefix (e.g. "report" → "report.json")
+ * @param {string} outputPrefix - Filename prefix (e.g. "report" → "report.json")
+ * @param {string} outputDir    - Directory to write into (default: cwd)
  * @returns {string}            - Absolute path of the written file
  */
-function saveJSON(report, outputPrefix = 'report') {
-  const filePath = path.resolve(`${outputPrefix}.json`);
+function saveJSON(report, outputPrefix = 'report', outputDir = '.') {
+  fs.mkdirSync(outputDir, { recursive: true });
+  const filePath = path.resolve(outputDir, `${outputPrefix}.json`);
   const json = JSON.stringify(report, null, 2);
 
   try {

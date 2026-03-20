@@ -259,17 +259,18 @@ function buildBasePayload(fields, targetFieldName) {
 /**
  * Run all validation tests against a list of forms.
  *
- * @param {Array<object>} forms   - Parsed forms from formScanner
- * @param {object}        engine  - Request engine instance
- * @returns {object}              - { issues, results, tasksRun }
+ * @param {Array<object>} forms       - Parsed forms from formScanner
+ * @param {object}        engine      - Request engine instance
+ * @param {Function}      [onProgress]- Called after each completed request (increment progress bar)
+ * @returns {object}                  - { issues, results, tasksRun }
  */
-async function runValidationTests(forms, engine) {
+async function runValidationTests(forms, engine, onProgress) {
   const allIssues = [];
   const allResults = [];
   let totalTasks = 0;
 
   for (const form of forms) {
-    logger.info(`Running validation tests on form #${form.formIndex} [${form.formId}]…`);
+    logger.verbose(`Running validation tests on form #${form.formIndex} [${form.formId}]…`);
 
     const tasks = buildValidationTasks(form);
     totalTasks += tasks.length;
@@ -281,7 +282,7 @@ async function runValidationTests(forms, engine) {
       continue;
     }
 
-    const results = await engine.run(tasks);
+    const results = await engine.run(tasks, onProgress);
 
     // Group results by testType + fieldName for analysis
     const grouped = {};
@@ -307,7 +308,7 @@ async function runValidationTests(forms, engine) {
 
     allResults.push(...results);
 
-    logger.success(`  Completed ${tasks.length} validation tests for form [${form.formId}].`);
+    logger.verbose(`  Completed ${tasks.length} validation tests for form [${form.formId}].`);
   }
 
   return { issues: allIssues, results: allResults, tasksRun: totalTasks };

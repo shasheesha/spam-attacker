@@ -115,11 +115,13 @@ function renderTXT(report) {
  * Save the report as a plain-text (.txt) file.
  *
  * @param {object} report       - Full report object
- * @param {string} outputPrefix - File prefix (e.g. "report" → "report.txt")
+ * @param {string} outputPrefix - Filename prefix (e.g. "report" → "report.txt")
+ * @param {string} outputDir    - Directory to write into (default: cwd)
  * @returns {string}            - Absolute path of the written file
  */
-function saveTXT(report, outputPrefix = 'report') {
-  const filePath = path.resolve(`${outputPrefix}.txt`);
+function saveTXT(report, outputPrefix = 'report', outputDir = '.') {
+  fs.mkdirSync(outputDir, { recursive: true });
+  const filePath = path.resolve(outputDir, `${outputPrefix}.txt`);
   const content = renderTXT(report);
 
   try {

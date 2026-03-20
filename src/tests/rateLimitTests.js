@@ -116,21 +116,22 @@ function detectCaptcha(results) {
  * @param {Array<object>} forms       - Parsed form objects
  * @param {object}        engine      - Request engine
  * @param {number}        burstCount  - Requests to fire per form
+ * @param {Function}      [onProgress]- Called after each completed request
  * @returns {object}                  - { issues, results, stats }
  */
-async function runRateLimitTests(forms, engine, burstCount = DEFAULT_BURST_COUNT) {
+async function runRateLimitTests(forms, engine, burstCount = DEFAULT_BURST_COUNT, onProgress) {
   const allIssues = [];
   const allResults = [];
   const allStats = [];
 
   for (const form of forms) {
-    logger.info(`Running rate-limit tests on form #${form.formIndex} [${form.formId}]…`);
+    logger.verbose(`Running rate-limit tests on form #${form.formIndex} [${form.formId}]…`);
     logger.verbose(`  Sending ${burstCount} rapid requests to: ${form.actionUrl}`);
 
     const tasks = buildRateLimitTasks(form, burstCount);
 
     // Use a higher concurrency for rate-limit tests to actually stress the endpoint
-    const results = await engine.run(tasks);
+    const results = await engine.run(tasks, onProgress);
 
     const captchaHits = detectCaptcha(results);
     const blockingInfo = detectTemporaryBlocking(results);
@@ -164,7 +165,7 @@ async function runRateLimitTests(forms, engine, burstCount = DEFAULT_BURST_COUNT
     allResults.push(...results);
     allStats.push({ formId: form.formId, ...stats, ...blockingInfo, captchaHits });
 
-    logger.success(`  Completed rate-limit tests for form [${form.formId}].`);
+    logger.verbose(`  Completed rate-limit tests for form [${form.formId}].`);
 
     // Brief pause between forms to be respectful to the server
     await sleep(500);

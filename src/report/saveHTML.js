@@ -245,11 +245,13 @@ function renderHTML(report) {
  * Save the report as an HTML file.
  *
  * @param {object} report       - Full report object
- * @param {string} outputPrefix - File prefix (e.g. "report" → "report.html")
+ * @param {string} outputPrefix - Filename prefix (e.g. "report" → "report.html")
+ * @param {string} outputDir    - Directory to write into (default: cwd)
  * @returns {string}            - Absolute path of the written file
  */
-function saveHTML(report, outputPrefix = 'report') {
-  const filePath = path.resolve(`${outputPrefix}.html`);
+function saveHTML(report, outputPrefix = 'report', outputDir = '.') {
+  fs.mkdirSync(outputDir, { recursive: true });
+  const filePath = path.resolve(outputDir, `${outputPrefix}.html`);
   const content = renderHTML(report);
 
   try {

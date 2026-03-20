@@ -36,10 +36,10 @@ function bold(text) {
 }
 
 let verboseMode = false;
+let silentMode  = false;
 
-function setVerbose(flag) {
-  verboseMode = !!flag;
-}
+function setVerbose(flag) { verboseMode = !!flag; }
+function setSilent(flag)  { silentMode  = !!flag; }
 
 function timestamp() {
   return colorize(`[${new Date().toISOString()}]`, 'gray');
@@ -47,30 +47,21 @@ function timestamp() {
 
 const logger = {
   setVerbose,
+  setSilent,
 
-  info(msg) {
-    console.log(`${timestamp()} ${colorize('INFO', 'cyan')}  ${msg}`);
-  },
-
-  success(msg) {
-    console.log(`${timestamp()} ${colorize('OK  ', 'green')}  ${msg}`);
-  },
-
-  warn(msg) {
-    console.warn(`${timestamp()} ${colorize('WARN', 'yellow')}  ${msg}`);
-  },
-
-  error(msg) {
-    console.error(`${timestamp()} ${colorize('ERR ', 'red')}  ${msg}`);
-  },
+  info(msg)    { if (!silentMode) console.log(`${timestamp()} ${colorize('INFO', 'cyan')}  ${msg}`); },
+  success(msg) { if (!silentMode) console.log(`${timestamp()} ${colorize('OK  ', 'green')}  ${msg}`); },
+  warn(msg)    { if (!silentMode) console.warn(`${timestamp()} ${colorize('WARN', 'yellow')}  ${msg}`); },
+  error(msg)   { if (!silentMode) console.error(`${timestamp()} ${colorize('ERR ', 'red')}  ${msg}`); },
 
   verbose(msg) {
-    if (verboseMode) {
+    if (!silentMode && verboseMode) {
       console.log(`${timestamp()} ${colorize('VERB', 'gray')}  ${colorize(msg, 'gray')}`);
     }
   },
 
   section(title) {
+    if (silentMode) return;
     const line = '─'.repeat(60);
     console.log('');
     console.log(colorize(line, 'blue'));
@@ -79,14 +70,15 @@ const logger = {
   },
 
   banner() {
+    if (silentMode) return;
     if (chalk) {
       console.log(chalk.cyan.bold('\n╔══════════════════════════════════════════════════════════╗'));
-      console.log(chalk.cyan.bold('║             Spam Attacker  v1.0.0                        ║'));
+      console.log(chalk.cyan.bold('║             Spam Attacker  v1.2.0                        ║'));
       console.log(chalk.cyan.bold('║        Web Form Security Testing CLI Tool                ║'));
       console.log(chalk.cyan.bold('╚══════════════════════════════════════════════════════════╝\n'));
     } else {
       console.log(`\n${ANSI.cyan}${ANSI.bold}╔══════════════════════════════════════════════════════════╗${ANSI.reset}`);
-      console.log(`${ANSI.cyan}${ANSI.bold}║             Spam Attacker  v1.0.0                        ║${ANSI.reset}`);
+      console.log(`${ANSI.cyan}${ANSI.bold}║             Spam Attacker  v1.2.0                        ║${ANSI.reset}`);
       console.log(`${ANSI.cyan}${ANSI.bold}║        Web Form Security Testing CLI Tool                ║${ANSI.reset}`);
       console.log(`${ANSI.cyan}${ANSI.bold}╚══════════════════════════════════════════════════════════╝\n${ANSI.reset}`);
     }

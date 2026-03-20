@@ -108,9 +108,10 @@ async function sendRequest({ url, method, data = {}, enctype, client, label = ''
  * @param {number}        concurrency  - Max simultaneous in-flight requests
  * @param {number}        maxRps       - Max requests per second (throttle)
  * @param {object}        client       - Shared axios client
+ * @param {Function}      [onProgress] - Called after each completed request
  * @returns {Promise<Array<object>>}   - Ordered array of results
  */
-async function executeRequests(tasks, concurrency = 10, maxRps = DEFAULT_MAX_RPS, client) {
+async function executeRequests(tasks, concurrency = 10, maxRps = DEFAULT_MAX_RPS, client, onProgress) {
   const limit = pLimit(concurrency);
 
   // Throttle: minimum gap between request dispatches (ms)
@@ -126,7 +127,9 @@ async function executeRequests(tasks, concurrency = 10, maxRps = DEFAULT_MAX_RPS
         await sleep(minGap - gap);
       }
       lastDispatch = Date.now();
-      return sendRequest({ ...task, client });
+      const result = await sendRequest({ ...task, client });
+      if (typeof onProgress === 'function') onProgress(1);
+      return result;
     })
   );
 
@@ -143,9 +146,11 @@ function createEngine({ concurrency = 10, timeout = 10000, maxRps = DEFAULT_MAX_
   return {
     /**
      * Run a batch of tasks and return results.
+     * @param {Array<object>} tasks
+     * @param {Function}      [onProgress]
      */
-    async run(tasks) {
-      return executeRequests(tasks, concurrency, maxRps, client);
+    async run(tasks, onProgress) {
+      return executeRequests(tasks, concurrency, maxRps, client, onProgress);
     },
 
     /**
